@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum RecordType {
+  INCOME
+  EXPENSE
+}
+
+enum ExpenseCategory {
+  Grocery
+  Gifts
+  HealthMedical
+  Home
+  Transportation
+  Personal
+  Pets
+  Utilities
+  Travel
+  CreditCardPayment
+  Other
+  EatingOut
+  Entertainment
+  Car
+}
+
+enum IncomeCategory {
+  Savings
+  Paycheck
+  Bonus
+  Interest
+  Other
+  Custom
+}
+
+model Record {
+  id          String     @id @default(uuid())
+  userId      String
+  type        RecordType
+  amount      Decimal
+  description String?
+  category    String
+  date        DateTime
+  month       Int
+  createdAt   DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, month])
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+
+  records      Record[]
+  accounts     Account[]
+  sessions     Session[]
+  transactions Transaction[]
+}
+
+model Transaction {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  type TransactionType
+
+  date        DateTime
+  amount      Decimal
+  description String?
+
+  category String
+  entry    String? // only for EXPENSE
+  spender  String? // only for EXPENSE
+  month    String
+
+  createdAt DateTime @default(now())
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

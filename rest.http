@@ -1,0 +1,42 @@
+@baseUrl = http://localhost:3000
+
+###
+# 1️⃣ Sign in (browser required)
+# First, open http://localhost:3000/api/auth/signin in your browser
+# Login so cookies are set
+
+###
+# 2️⃣ Create EXPENSE record
+POST {{baseUrl}}/api/records
+Content-Type: application/json
+
+{
+  "type": "EXPENSE",
+  "amount": 18.98,
+  "description": "Dinner",
+  "category": "EatingOut",
+  "date": "2025-01-06"
+}
+
+###
+# 3️⃣ Create INCOME record
+POST {{baseUrl}}/api/records
+Content-Type: application/json
+
+{
+  "type": "INCOME",
+  "amount": 5500,
+  "description": "January Salary",
+  "category": "Paycheck",
+  "date": "2025-01-16"
+}
+
+###
+# 4️⃣ Missing field (should fail)
+POST {{baseUrl}}/api/records
+Content-Type: application/json
+
+{
+  "type": "EXPENSE",
+  "amount": 10
+}
